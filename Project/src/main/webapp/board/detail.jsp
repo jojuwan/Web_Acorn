@@ -38,6 +38,9 @@
 	  width: 100%;
 	  height: 160px;
 	}
+	.card-body > form{
+		display: none;
+	}
 </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
@@ -126,7 +129,7 @@
 							</p>
 						  </div>
 						  <div class="card-body">
-						   	<form v-if=!commentShow action="${pageContext.request.contextPath }/comment/update.jsp" method="post">
+						   	<form ref="form<%=tmp.getCommentNum() %>" action="${pageContext.request.contextPath }/comment/update.jsp" method="post">
 								<div>
 									<input type="hidden" name="num" value="<%=tmp.getCommentNum() %>" />
 									<input type="hidden" name="boardNum" value="<%=dto.getNum() %>" />
@@ -136,13 +139,16 @@
 							</form>
 							<p><%=tmp.getComment1() %></p>
 							<%if(tmp.getWriter().equals(id)){ %>
-								<button v-if=commentShow class="btn btn-sm btn-dark" v-on:click="update">수정</button>
-								<button v-if=commentShow class="btn btn-sm btn-danger" v-on:click="commentdel(<%=tmp.getCommentNum()%>)">삭제</button>
+								<div ref="div<%=tmp.getCommentNum() %>">
+									<button class="btn btn-sm btn-dark" v-on:click="update(<%=tmp.getCommentNum() %>)">수정</button>
+									<button class="btn btn-sm btn-danger" v-on:click="commentdel(<%=tmp.getCommentNum()%>)">삭제</button>
+								</div>
 							<%} %>
 						  </div>
 						</div>
 					<%} %>
 				<%} %>
+			</div>	
 		</div>
 	</div>
 	<jsp:include page="/include/footer.jsp"></jsp:include>
@@ -150,10 +156,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script>
 		let app = new Vue({
-			el:"#app",
-			data:{
-				commentShow : true
-			},
+			el:"#app",	
 			methods:{
 				commentdel(num){
 					const isDelete = confirm("이 댓글을 삭제하겠습니까?");
@@ -167,8 +170,9 @@
 						location.href="private/delete.jsp?num=<%=dto.getNum()%>";
 					}
 				},
-				update(){
-					this.commentShow=false;
+				update(num){
+					this.$refs["form"+num].style.display="block";
+					this.$refs["div"+num].style.display="none";
 				}
 			}
 		});		
